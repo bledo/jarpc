@@ -14,8 +14,6 @@
 	@WebServlet("/TestService")
 	public class TestService extends RpcServlet
 	{
-		private static final long serialVersionUID = 1L;
-		
 		@JsonRpc
 		public String helloWorld(String name)
 		{
