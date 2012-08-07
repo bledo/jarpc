@@ -1,0 +1,25 @@
+<ivy-module version="2.0">
+    <info organisation="co.bledo" module="rpc" />
+
+    <configurations defaultconfmapping="runtime">
+	<conf name="runtime" />
+	<conf name="compile" extends="runtime" />
+    </configurations>
+
+    <dependencies>
+	<dependency org="junit" name="junit" rev="4.10" conf="compile->default" />
+	<dependency org="org.glassfish.extras" name="glassfish-embedded-all" rev="3.1" conf="compile->default" />
+	<dependency org="mysql" name="mysql-connector-java" rev="5.1.20" conf="runtime->default" />
+  	<dependency org="org.json" name="json" rev="20090211" conf="runtime->default" />
+  	<dependency org="commons-lang" name="commons-lang" rev="2.6" conf="runtime->default" />
+  	<dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.2" conf="runtime->default" />
+  	<dependency org="commons-io" name="commons-io" rev="2.3" conf="runtime->default" />
+  	<dependency org="javax.activation" name="activation" rev="1.1.1" conf="runtime->default" />
+  	<dependency org="javax.mail" name="mail" rev="1.4.5" conf="runtime->default" />
+  	<dependency org="org.slf4j" name="slf4j-api" rev="1.6.6" conf="runtime->default" />
+  	<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.2" conf="runtime->default" />
+  	<dependency org="log4j" name="log4j" rev="1.2.17" conf="runtime->default" />
+	<dependency org="org.apache.velocity" name="velocity" rev="1.7" conf="runtime->default" />
+    </dependencies>
+
+</ivy-module>

@@ -1,0 +1,135 @@
+<project name="BledoRpc" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+	<description>Bledo JaRPC</description>
+
+	<property name="build" location="build"/>
+
+	<property name="webapp" location="WebContent"/>
+	<property name="webapp-dest" location="${build}/webapp"/>
+
+	<property name="src" location="src"/>
+	<property name="src-dest" location="${build}/classes"/>
+
+	<property name="res" location="resources"/>
+	<property name="res-dest" location="${webapp-dest}/WEB-INF/classes"/>
+
+	<property name="lib-run"  location="${build}/lib-run"/>
+	<property name="lib-comp"  location="${build}/lib-comp"/>
+
+	<property name="jar-file-name" location="${dist}/lib/app.jar"/>
+	<property name="jar-main-class" value="bledo.MainClass"/>
+
+	<path id="lib-comp-cp">
+		<!-- <pathelement path="classes/" /> -->
+		<fileset dir="${lib-comp}"><include name="**/*.jar" /></fileset>
+	</path>
+
+	<target name="compile" depends="lib-comp-download">
+		<mkdir dir="${src-dest}"/>
+		<javac debug="true" includeantruntime="false" srcdir="${src}" destdir="${src-dest}">
+			<classpath refid="lib-comp-cp" />
+		</javac>
+	</target>
+	<target name="lib-comp-download" depends="init-ivy,lib-comp-exists" unless="lib.comp.present">
+		<mkdir dir="${lib-comp}"/>
+		<ivy:settings file="ivysettings.xml"/>
+		<ivy:retrieve conf="compile" pattern="${lib-comp}/[artifact]-[type]-[revision].[ext]" /> 
+	</target>
+	<target name="lib-comp-exists">
+		<available file="${lib-comp}" property="lib.comp.present" />
+	</target>
+
+	<target name="dist" depends="compile,lib-run-download">
+		<copy todir="${webapp-dest}">
+			<fileset dir="${webapp}" />
+		</copy>
+
+		<mkdir dir="${res-dest}" />
+		<copy todir="${res-dest}">
+			<fileset dir="${res}" />
+		</copy>
+
+		<mkdir dir="${webapp-dest}/WEB-INF/classes" />
+		<copy todir="${webapp-dest}/WEB-INF/classes">
+			<fileset dir="${src-dest}" />
+		</copy>
+
+		<copy todir="${webapp-dest}/WEB-INF/lib">
+			<fileset dir="${lib-run}" />
+		</copy>
+	</target>
+
+	<target name="cli" depends="compile,lib-run-download">
+		<!--
+		<jar jarfile="${jar-file-name}" basedir="${build}"-->
+			<!--zipgroupfileset dir="${lib}" includes="**/*.jar" /-->
+			<!--manifest><attribute name="Main-Class" value="${jar-main-class}" /></manifest>
+		</jar>
+		-->
+	</target>
+
+	<target name="lib-run-download" depends="init-ivy,lib-run-exists" unless="lib.run.present">
+		<mkdir dir="${lib-run}" />
+		<ivy:settings file="ivysettings.xml" />
+		<ivy:retrieve conf="runtime" pattern="${lib-run}/[artifact]-[revision].[ext]" />
+	</target>
+	<target name="lib-run-exists">
+		<available file="${lib-run}" property="lib.run.present" />
+	</target>
+
+	<!--target name="run" depends="dist">
+		<java jar="${jar-file-name}" fork="true">
+			<classpath refid="libraries" />
+			<arg value="-Dvar=val" />
+		</java>
+	</target-->
+
+	<target name="clean">
+		<delete dir="${build}"/>
+	</target>
+
+	<!-- download Ivy from web site so that it can be used even without any special installation -->
+	<target name="download-ivy" unless="offline">
+		<mkdir dir="${build}"/>
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.2.0/ivy-2.2.0.jar" dest="${build}/ivy-2.2.0.jar" usetimestamp="true" skipexisting="true" />
+	</target>
+
+	<target name="init-ivy" depends="download-ivy">
+		<!-- try to load ivy here from ivy home, in case the user has not already dropped
+		it into ant's lib dir (note that the latter copy will always take precedence).
+		We will not fail as long as local lib dir exists (it may be empty) and
+		ivy is in at least one of ant's lib dir or the local lib dir. -->
+		<path id="ivy.lib.path">
+			<fileset dir="${build}" includes="*.jar"/>
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+	</target>
+
+	<target name="jetty-run" depends="jetty-install,dist">
+		<delete dir="${build}/jetty/jetty-hightide-8.1.4.v20120524/webapps"/>
+		<mkdir dir="${build}/jetty/jetty-hightide-8.1.4.v20120524/webapps"/>
+		<copy todir="${build}/jetty/jetty-hightide-8.1.4.v20120524/webapps/root">
+			<fileset dir="${webapp-dest}" />
+		</copy>
+
+		<java jar="${build}/jetty/jetty-hightide-8.1.4.v20120524/start.jar" fork="true" dir="${build}/jetty/jetty-hightide-8.1.4.v20120524">
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
+		</java>
+	</target>
+
+	<target name="jetty-install" depends="jetty-exists" unless="jetty.present">
+		<mkdir dir="${build}/jetty"/>
+		<get src="http://dist.codehaus.org/jetty/jetty-hightide-8.1.4/jetty-hightide-8.1.4.v20120524.tar.gz"
+			dest="${build}/jetty/jetty-hightide-8.1.4.v20120524.tar.gz" usetimestamp="true"
+			skipexisting="true" />
+		<gunzip src="${build}/jetty/jetty-hightide-8.1.4.v20120524.tar.gz" dest="${build}/jetty/jetty-hightide-8.1.4.v20120524.tar" />
+		<untar src="${build}/jetty/jetty-hightide-8.1.4.v20120524.tar" dest="${build}/jetty"/>
+
+		<delete dir="${build}/jetty/jetty-hightide-8.1.4.v20120524/contexts"/>
+		<mkdir dir="${build}/jetty/jetty-hightide-8.1.4.v20120524/contexts"/>
+	</target>
+
+	<target name="jetty-exists">
+		<available file="${build}/jetty/jetty-hightide-8.1.4.v20120524" property="jetty.present" />
+	</target>
+
+</project>

@@ -1,0 +1,11 @@
+<ivysettings>
+	<settings defaultResolver="chain"/>
+	<resolvers>
+		<chain name="chain">
+			<ibiblio name="central" m2compatible="true"/>
+			<ibiblio name="EclipseLink" m2compatible="true" root="http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo"/>
+			<ibiblio name="Quercus" m2compatible="true" root="http://caucho.com/m2/"/>
+			<ibiblio name="Jetty" m2compatible="true" root="https://oss.sonatype.org/content/groups/jetty"/>
+		</chain>
+	</resolvers>
+</ivysettings>
